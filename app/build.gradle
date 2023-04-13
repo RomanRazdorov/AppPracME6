@@ -6,6 +6,10 @@ android {
     namespace 'com.example.apppracme6'
     compileSdk 33
 
+    buildFeatures {
+        viewBinding true
+    }
+
     defaultConfig {
         applicationId "com.example.apppracme6"
         minSdk 24
