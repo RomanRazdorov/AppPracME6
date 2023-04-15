@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">AppPracME6</string>
     <string name="notifyBtn">Send Notify!</string>
+    <string name="serviceBtn">Start Service!</string>
+    <string name="Message">Some AWESOME Message</string>
+    <string name="bannerBTN">Service Button</string>
+
+
 </resources>

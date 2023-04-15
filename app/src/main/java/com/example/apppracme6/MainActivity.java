@@ -8,13 +8,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 
 import com.example.apppracme6.databinding.ActivityMainBinding;
@@ -38,20 +42,49 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent =  new Intent(getApplicationContext(), MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_launcher_foreground)
-                        .setContentTitle("Title")
-                        .setContentText("Some Text")
-                        .setPriority(PRIORITY_DEFAULT)
-                        .setWhen(System.currentTimeMillis())
-                        .setAutoCancel(false);
-                createChannelIfNeeded(notificationManager);
-                notificationManager.notify(NOTIFY_ID, notificationBuilder.build());
+                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                showNotification();
+            }
+        });
+
+        binding.serviceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!Settings.canDrawOverlays(getApplicationContext()))
+                {
+                        startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION));
+                }
+                Intent serviceIntent = new Intent(getApplicationContext(), MyService.class);
+                startService(serviceIntent);
+                Log.i("Service", "Start service");
+                stopService(serviceIntent);
+                Log.i("Service", "Stop service");
             }
         });
 
     }
+
+    private void showNotification()
+    {
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Title")
+                .setContentText("Some Text")
+                .setPriority(PRIORITY_DEFAULT)
+                .setWhen(System.currentTimeMillis())
+                .setAutoCancel(false);
+        createChannelIfNeeded(notificationManager);
+        Log.i("Checking", "Start Check");
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+        {
+            Log.i("Checking", "Check failed");
+            return;
+        }
+        Log.i("Checking", "Check successful");
+        notificationManager.notify(NOTIFY_ID, notificationBuilder.build());
+    }
+
 
     public void createChannelIfNeeded(NotificationManager manager)
     {
@@ -61,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
             manager.createNotificationChannel(notificationChannel);
         }
     }
+
 
     @Override
     protected void onDestroy() {
